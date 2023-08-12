@@ -1170,16 +1170,22 @@ MonoBehaviour:
   worldPosition: {x: 0, y: 0, z: 0}
   currentYRotation: 0
   currentTiltTime: 0
-  riseEaseIn: 2
-  riseEaseOut: 9
-  riseDuration: 0.07
+  riseEaseIn: 3
+  riseEaseOut: 1
+  riseEaseOutHeight: 9
+  riseDuration: 0.13
+  risePlacementFactor: 0.5
   riseScale: 130
-  dropEaseIn: 2
-  dropEaseOut: 11
+  dropEaseIn: 3
+  dropEaseOut: 2
+  dropEaseOutHeight: 11
   dropDuration: 0.42
+  dropPlacementFactor: 0.7
   invalidDropEaseIn: 2
   invalidDropEaseOut: 3
+  invalidDropEaseOutHeight: 11
   invalidDropDuration: 0.18
+  invalidDropPlacementFactor: 0.9
   dropRotationRange: 2
   dropHasEmptyParent: 1
 --- !u!114 &5273151925695770007

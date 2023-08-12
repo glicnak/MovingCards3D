@@ -44,8 +44,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField]
   private Ease riseEaseOut = Ease.Linear;  
 
+  [SerializeField]
+  private Ease riseEaseOutHeight = Ease.Linear;  
+
   [SerializeField, Range(0.0f, 5.0f)]
   private float riseDuration = 0.2f;
+
+  //How much quicker the non-height movements finish. Helps with following the cursor more properly
+  [SerializeField, Range(0.0f, 1.0f)]
+  private float risePlacementFactor = 0.5f;
 
   [SerializeField, Range(0.0f, 500.0f)]
   private float riseScale = 130.0f;    
@@ -56,8 +63,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField]
   private Ease dropEaseOut = Ease.Linear;  
 
+  [SerializeField]
+  private Ease dropEaseOutHeight = Ease.Linear;  
+
   [SerializeField, Range(0.0f, 5.0f)]
-  private float dropDuration = 0.2f;  
+  private float dropDuration = 0.2f;
+
+  //How much quicker the non-height movements finish.  
+  [SerializeField, Range(0.0f, 1.0f)]
+  private float dropPlacementFactor = 0.7f;  
 
   [SerializeField]
   private Ease invalidDropEaseIn = Ease.Linear;  
@@ -65,8 +79,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField]
   private Ease invalidDropEaseOut = Ease.Linear;  
 
+  [SerializeField]
+  private Ease invalidDropEaseOutHeight = Ease.Linear;  
+
   [SerializeField, Range(0.0f, 5.0f)]
   private float invalidDropDuration = 0.2f;  
+  
+  //How much quicker the non-height movements finish.  
+  [SerializeField, Range(0.0f, 1.0f)]
+  private float invalidDropPlacementFactor = 0.9f;
 
   [SerializeField, Range(0.0f, 45.0f)]
   private float dropRotationRange = 2.0f;  
@@ -75,7 +96,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private bool dropHasEmptyParent = true;  
 
   private Vector3 dragOriginPosition;
-  private Vector3 dragOriginScale;  
+  private Vector3 initalScale;  
 
   public void OnPointerEnter(Vector3 position) { }
 
@@ -86,13 +107,12 @@ public sealed class CardDrag : MonoBehaviour, IDrag
     if(GetComponent<CardValues>().isSelectable){
       GetComponent<CardValues>().isSelectable = false;
       dragOriginPosition = transform.position;
-      dragOriginScale = transform.localScale;
       currentTiltTime = GetComponent<CardTilter>().restTime;
       float height = position.y;
 
       IsDraggable = false;
 
-      createTweenMoves(dragOriginPosition, dragOriginScale, worldPosition, height, 0, riseScale, riseDuration, riseEaseIn, riseEaseOut, true);
+      createTweenMoves(dragOriginPosition, transform.localScale, worldPosition, height, 0, riseScale, riseDuration, risePlacementFactor, riseEaseIn, riseEaseOut, riseEaseOutHeight, true);
       
       currentYRotation = 0;
 
@@ -128,16 +148,14 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       }
 
       currentTiltTime = Math.Max(0, dropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, randomRotation, dragOriginScale.x, dropDuration, dropEaseIn, dropEaseOut, true);
+      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, randomRotation, initalScale.x, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
 
     }
     else
     {
       IsDraggable = false;
       currentTiltTime = Math.Max(0, invalidDropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, height, randomRotation, dragOriginScale.x, invalidDropDuration, invalidDropEaseIn, invalidDropEaseOut, true);
-      //his old code
-      //transform.TweenMove(dragOriginPosition, invalidDropDuration, invalidDropEase).OnEnd(_ => IsDraggable = true);
+      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, height, randomRotation, initalScale.x, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);
 
     }
     currentYRotation = randomRotation;
@@ -146,16 +164,16 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private void OnEnable()
   {
     dragOriginPosition = transform.position;
-    dragOriginScale = transform.localScale;
+    initalScale = transform.localScale;
     currentYRotation = transform.rotation.y;
     currentTiltTime = GetComponent<CardTilter>().restTime;
   }
 
-  private void createTweenMoves(Vector3 dragOriginPosition, Vector3 dragOriginScale, Vector3 desiredPosition, float height, float desiredYRotation, float desiredScale, float duration, FronkonGames.TinyTween.Ease easeIn, FronkonGames.TinyTween.Ease easeOut, bool isItDraggable){
-        TweenFloat.Create()
+  private void createTweenMoves(Vector3 dragOriginPosition, Vector3 dragOriginScale, Vector3 desiredPosition, float height, float desiredYRotation, float desiredScale, float duration, float placementFactor, FronkonGames.TinyTween.Ease easeIn, FronkonGames.TinyTween.Ease easeOut, FronkonGames.TinyTween.Ease easeOutHeight, bool isItDraggable){
+      TweenFloat.Create()
         .Origin(dragOriginPosition.x)
         .Destination(desiredPosition.x)
-        .Duration(duration)
+        .Duration(duration * placementFactor)
         .EasingIn(easeIn)
         .EasingOut(easeOut)
         .OnUpdate(tween => transform.position = new Vector3(tween.Value, transform.position.y, transform.position.z))
@@ -167,7 +185,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .Destination(height)
         .Duration(duration)
         .EasingIn(easeIn)
-        .EasingOut(easeOut)
+        .EasingOut(easeOutHeight)
         .OnUpdate(tween => transform.position = new Vector3(transform.position.x, tween.Value, transform.position.z))
         .OnEnd(_ => IsDraggable = isItDraggable)
         .Owner(this)
@@ -175,7 +193,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       TweenFloat.Create()
         .Origin(dragOriginPosition.z)
         .Destination(desiredPosition.z)
-        .Duration(duration)
+        .Duration(duration * placementFactor)
         .EasingIn(easeIn)
         .EasingOut(easeOut)
         .OnUpdate(tween => transform.position = new Vector3(transform.position.x, transform.position.y, tween.Value))

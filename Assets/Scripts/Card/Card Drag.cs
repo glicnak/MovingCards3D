@@ -97,6 +97,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
   private Vector3 dragOriginPosition;
   private Vector3 initalScale;  
+  private float droppableYValue; 
 
   public void OnPointerEnter(Vector3 position) { }
 
@@ -129,6 +130,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   {
     GetComponent<CardValues>().isSelectable = true;
     float height = position.y;
+    
+
     //Generate random rotation
     System.Random rng = new System.Random();
     float randomRotation = rng.Next(-(int)dropRotationRange*2, Math.Max(0, (int)dropRotationRange*2-1)) * 0.5f;
@@ -138,7 +141,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
     if (droppable != null && droppable.transform.GetComponent<IDrop>() is { IsDroppable: true } && droppable.transform.GetComponent<IDrop>().AcceptDrop(this) == true){
       
-      //Set Droppable's parent as new parent (Droppable's parent needs a scale of 1,1,1)
+      //Set Droppable's parent as new parent (the object becoming the parent needs a scale of 1,1,1)
       if(dropHasEmptyParent){
         transform.SetParent(droppable.transform.parent, true);
         transform.SetSiblingIndex(droppable.transform.parent.childCount -2);
@@ -147,18 +150,26 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         transform.SetParent(droppable.transform, true);
       }
 
-      currentTiltTime = Math.Max(0, dropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, randomRotation, initalScale.x, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
+      //Get the rotation of the droppable
+      droppableYValue = UnityEditor.TransformUtils.GetInspectorRotation(droppable.transform).y;
 
+      //Do the move
+      currentTiltTime = Math.Max(0, dropDuration * 0.9f);
+      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, droppableYValue + randomRotation, initalScale.x, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
+      
     }
+    
     else
     {
+      //Return the object to where it was
       IsDraggable = false;
       currentTiltTime = Math.Max(0, invalidDropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, height, randomRotation, initalScale.x, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);
+      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, height, droppableYValue + randomRotation, initalScale.x, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);
 
     }
-    currentYRotation = randomRotation;
+
+    currentYRotation = droppableYValue + randomRotation;
+
   }
 
   private void OnEnable()
@@ -166,6 +177,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
     dragOriginPosition = transform.position;
     initalScale = transform.localScale;
     currentYRotation = transform.rotation.y;
+    droppableYValue = currentYRotation;
     currentTiltTime = GetComponent<CardTilter>().restTime;
   }
 

@@ -27,9 +27,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   //defines the mouse position
   [HideInInspector]
   public Vector3 worldPosition;
+  //Gives the current X rotation of the card
+  [HideInInspector]
+  public float currentXRotation;
   //Gives the current Y rotation of the card
   [HideInInspector]
   public float currentYRotation;
+  //Gives the current YZ rotation of the card
+  [HideInInspector]
+  public float currentZRotation;
   //Changes what the rest Time should be depending on the ongoing action
   [HideInInspector]
   public float currentTiltTime;
@@ -105,7 +111,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
   public void OnBeginDrag(Vector3 position)
   {
-    if(GetComponent<CardValues>().isSelectable){
+    if(GetComponent<CardValues>().isSelectable && !GetComponent<CardValues>().isBeingDragged){
+      GetComponent<CardValues>().isBeingDragged = true;
       GetComponent<CardValues>().isSelectable = false;
       dragOriginPosition = transform.position;
       currentTiltTime = GetComponent<CardTilter>().restTime;
@@ -122,16 +129,18 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
   public void OnDrag(Vector3 deltaPosition, GameObject droppable)
   {
-    deltaPosition.y = 0.0f;
-    transform.position += deltaPosition;
+    if(GetComponent<CardValues>().isBeingDragged){
+      GetComponent<CardValues>().isSelectable = false;
+      deltaPosition.y = 0.0f;
+      transform.position += deltaPosition;
+    }
   }
 
   public void OnEndDrag(Vector3 position, GameObject droppable)
   {
-    GetComponent<CardValues>().isSelectable = true;
     float height = position.y;
+    GetComponent<CardValues>().isBeingDragged = false;
     
-
     //Generate random rotation
     System.Random rng = new System.Random();
     float randomRotation = rng.Next(-(int)dropRotationRange*2, Math.Max(0, (int)dropRotationRange*2-1)) * 0.5f;
@@ -169,7 +178,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
     }
 
     currentYRotation = droppableYValue + randomRotation;
-
+    
   }
 
   private void OnEnable()
@@ -189,7 +198,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .EasingIn(easeIn)
         .EasingOut(easeOut)
         .OnUpdate(tween => transform.position = new Vector3(tween.Value, transform.position.y, transform.position.z))
-        .OnEnd(_ => IsDraggable = isItDraggable)
         .Owner(this)
         .Start();
       TweenFloat.Create()
@@ -199,7 +207,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .EasingIn(easeIn)
         .EasingOut(easeOutHeight)
         .OnUpdate(tween => transform.position = new Vector3(transform.position.x, tween.Value, transform.position.z))
-        .OnEnd(_ => IsDraggable = isItDraggable)
         .Owner(this)
         .Start();
       TweenFloat.Create()
@@ -209,7 +216,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .EasingIn(easeIn)
         .EasingOut(easeOut)
         .OnUpdate(tween => transform.position = new Vector3(transform.position.x, transform.position.y, tween.Value))
-        .OnEnd(_ => IsDraggable = isItDraggable)
         .Owner(this)
         .Start();
       TweenFloat.Create()
@@ -218,8 +224,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .Duration(duration)
         .EasingIn(easeIn)
         .EasingOut(easeOut)
-        .OnUpdate(tween => transform.rotation = Quaternion.Euler(transform.rotation.x, tween.Value, transform.position.z))
-        .OnEnd(_ => IsDraggable = isItDraggable)
+        .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, tween.Value, UnityEditor.TransformUtils.GetInspectorRotation(transform).z))
         .Owner(this)
         .Start();
       TweenFloat.Create()
@@ -239,7 +244,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .EasingIn(easeIn)
         .EasingOut(easeOut)
         .OnUpdate(tween => transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, tween.Value))
-        .OnEnd(_ => IsDraggable = isItDraggable)
+        .OnEnd(_ => GetComponent<CardValues>().isSelectable = true)
         .Owner(this)
         .Start();
   }

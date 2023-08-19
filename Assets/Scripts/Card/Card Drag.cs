@@ -96,10 +96,10 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private float invalidDropPlacementFactor = 0.9f;
 
   [SerializeField, Range(0.0f, 45.0f)]
-  private float dropRotationRange = 2.0f;  
+  public float dropRotationRange = 2.0f;  
 
   [SerializeField]
-  private bool dropHasEmptyParent = true;  
+  public bool dropHasEmptyParent = true;  
 
   private Vector3 dragOriginPosition;
   private Vector3 initalScale;  
@@ -185,7 +185,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   {
     dragOriginPosition = transform.position;
     initalScale = transform.localScale;
-    currentYRotation = transform.rotation.y;
+    currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(transform).y;
     droppableYValue = currentYRotation;
     currentTiltTime = GetComponent<CardTilter>().restTime;
   }

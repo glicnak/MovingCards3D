@@ -21,6 +21,7 @@ using UnityEngine;
 /// </summary>
 public sealed class CardTilter : MonoBehaviour
 {
+
   [Header("Pitch")]
 
   [SerializeField, Header("Force")]
@@ -60,7 +61,7 @@ public sealed class CardTilter : MonoBehaviour
   private Vector3 oldPosition;
 
   // The original rotation
-  private Vector3 originalAngles;
+  public Vector3 originalAngles;
 
   private void Awake()
   {
@@ -81,7 +82,7 @@ public sealed class CardTilter : MonoBehaviour
       rollAngle = Mathf.Clamp(rollAngle + offset.x * rollForce, rollMinAngle, rollMaxAngle);
     }
 
-    // The angles have 0 with time.
+    // The angles have 0 with time
     pitchAngle = Mathf.SmoothDamp(pitchAngle, 0.0f, ref pitchVelocity, GetComponent<CardDrag>().currentTiltTime * Time.deltaTime * 10.0f);
     rollAngle = Mathf.SmoothDamp(rollAngle, 0.0f, ref rollVelocity, GetComponent<CardDrag>().currentTiltTime* Time.deltaTime * 10.0f);
 
@@ -91,5 +92,6 @@ public sealed class CardTilter : MonoBehaviour
                                           originalAngles.z - rollAngle);
 
     oldPosition = currentPosition;
+    
   }
 }

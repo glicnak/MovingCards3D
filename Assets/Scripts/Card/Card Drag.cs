@@ -44,6 +44,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
   public bool Dragging { get; set; }
 
+  [Header("Rise")]
+
   [SerializeField]
   private Ease riseEaseIn = Ease.Linear;  
 
@@ -63,6 +65,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField, Range(0.0f, 500.0f)]
   private float riseScale = 130.0f;    
 
+  [Header("Drop")]
+
   [SerializeField]
   private Ease dropEaseIn = Ease.Linear;  
 
@@ -79,6 +83,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField, Range(0.0f, 1.0f)]
   private float dropPlacementFactor = 0.7f;  
 
+  [Header("Invalid Drop")]
+
   [SerializeField]
   private Ease invalidDropEaseIn = Ease.Linear;  
 
@@ -94,6 +100,8 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   //How much quicker the non-height movements finish.  
   [SerializeField, Range(0.0f, 1.0f)]
   private float invalidDropPlacementFactor = 0.9f;
+
+  [Header("Drop Properties")]
 
   [SerializeField, Range(0.0f, 45.0f)]
   public float dropRotationRange = 2.0f;  

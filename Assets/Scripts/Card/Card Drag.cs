@@ -66,7 +66,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private float risePlacementFactor = 0.5f;
 
   [SerializeField, Range(0.0f, 500.0f)]
-  private float regularScale = 100.0f; 
+  public float regularScale = 100.0f; 
 
   [SerializeField, Range(0.0f, 1000.0f)]
   public float riseScale = 130.0f;    

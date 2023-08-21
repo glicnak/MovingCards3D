@@ -47,6 +47,9 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [Header("Rise")]
 
   [SerializeField]
+  public GameObject draggedCardParent;
+
+  [SerializeField]
   private Ease riseEaseIn = Ease.Linear;  
 
   [SerializeField]
@@ -63,7 +66,10 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private float risePlacementFactor = 0.5f;
 
   [SerializeField, Range(0.0f, 500.0f)]
-  private float riseScale = 130.0f;    
+  private float regularScale = 100.0f; 
+
+  [SerializeField, Range(0.0f, 1000.0f)]
+  public float riseScale = 130.0f;    
 
   [Header("Drop")]
 
@@ -109,9 +115,12 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField]
   public bool dropHasEmptyParent = true;  
 
-  private Vector3 dragOriginPosition;
-  private Vector3 initalScale;  
+  private Vector3 dragOriginPosition; 
   private float droppableYValue; 
+  private Transform dragStartParent;
+  private int dragStartIndex;
+  private float dragStartScale;
+  private float dragStartHeight;
 
   public void OnPointerEnter(Vector3 position) { }
 
@@ -125,8 +134,14 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       dragOriginPosition = transform.position;
       currentTiltTime = GetComponent<CardTilter>().restTime;
       float height = position.y;
-
       IsDraggable = false;
+      dragStartParent = transform.parent;
+      dragStartIndex = transform.GetSiblingIndex();
+      dragStartScale = transform.localScale.x;
+      dragStartHeight = transform.position.y;
+      if(draggedCardParent != null){
+        transform.SetParent(draggedCardParent.transform);
+      }
 
       createTweenMoves(dragOriginPosition, transform.localScale, worldPosition, height, 0, riseScale, riseDuration, risePlacementFactor, riseEaseIn, riseEaseOut, riseEaseOutHeight, true);
       
@@ -172,7 +187,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
 
       //Do the move
       currentTiltTime = Math.Max(0, dropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, droppableYValue + randomRotation, initalScale.x, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
+      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, droppableYValue + randomRotation, regularScale, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
       
     }
     
@@ -181,8 +196,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       //Return the object to where it was
       IsDraggable = false;
       currentTiltTime = Math.Max(0, invalidDropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, height, droppableYValue + randomRotation, initalScale.x, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);
 
+      //Set Parent and move
+      if(dragStartParent!= null){
+        transform.SetParent(dragStartParent);
+        transform.SetSiblingIndex(dragStartIndex);
+        
+      }
+
+      createTweenMoves(transform.position, transform.localScale, dragOriginPosition, dragStartHeight, droppableYValue + randomRotation, dragStartScale, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);
     }
 
     currentYRotation = droppableYValue + randomRotation;
@@ -192,7 +214,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private void OnEnable()
   {
     dragOriginPosition = transform.position;
-    initalScale = transform.localScale;
     currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(transform).y;
     droppableYValue = currentYRotation;
     currentTiltTime = GetComponent<CardTilter>().restTime;

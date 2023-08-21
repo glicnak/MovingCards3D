@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.005100012, y: 0.000010001124}
+  m_AnchoredPosition: {x: -0.005100012, y: 0.0000042}
   m_SizeDelta: {x: 0.3, y: 0.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &6344620320473587250
@@ -205,7 +205,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.0000042}
   m_SizeDelta: {x: 1.01, y: 0.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8784393547802582926
@@ -376,7 +376,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.005100012, y: 0.000010001124}
+  m_AnchoredPosition: {x: 0.005100012, y: 0.0000042}
   m_SizeDelta: {x: 0.3, y: 0.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7613808888023469656
@@ -547,7 +547,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.005800009, y: 0}
+  m_AnchoredPosition: {x: -0.005800009, y: 0.0000042}
   m_SizeDelta: {x: 0.3, y: 0.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8654160465490984179
@@ -718,7 +718,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.0000042}
   m_SizeDelta: {x: 1, y: 0.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &6469927910172948364
@@ -889,7 +889,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.0000042}
   m_SizeDelta: {x: 1.01, y: 0.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8341488341165572950
@@ -1130,6 +1130,9 @@ PrefabInstance:
       addedObject: {fileID: 4839070581615070664}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8561315575ba1054ea3f5543e9228c27, type: 3}
       insertIndex: -1
+      addedObject: {fileID: -8548254514658170077}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8561315575ba1054ea3f5543e9228c27, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1315971302833925351}
   m_SourcePrefab: {fileID: 100100000, guid: 8561315575ba1054ea3f5543e9228c27, type: 3}
 --- !u!4 &6208991549424178643 stripped
@@ -1155,6 +1158,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSelectable: 1
+  isBeingDragged: 0
+  roundStartParent: {fileID: 0}
 --- !u!114 &1266769685476117911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1168,13 +1173,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldPosition: {x: 0, y: 0, z: 0}
+  currentXRotation: 0
   currentYRotation: 0
+  currentZRotation: 0
   currentTiltTime: 0
+  draggedCardParent: {fileID: 0}
   riseEaseIn: 3
   riseEaseOut: 1
   riseEaseOutHeight: 9
   riseDuration: 0.13
   risePlacementFactor: 0.5
+  regularScale: 100
   riseScale: 130
   dropEaseIn: 3
   dropEaseOut: 2
@@ -1225,6 +1234,26 @@ MonoBehaviour:
   rollMinAngle: -18
   rollMaxAngle: 18
   restTime: 1.3
+  originalAngles: {x: 0, y: 0, z: 0}
+--- !u!114 &-8548254514658170077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6728681611269033833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b25a4bdd4ddfd64daa8e1c8fa95067e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playDuration: 1.8
+  movementFactor: 0.6
+  oppPlayDuration: 1.8
+  oppMovementFactor: 0.4
+  easeIn: 2
+  easeOut: 3
+  easeOutHeight: 11
 --- !u!65 &1315971302833925351
 BoxCollider:
   m_ObjectHideFlags: 0

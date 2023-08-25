@@ -86,7 +86,7 @@ namespace FronkonGames.TinyTween
     int ExecutionCount { get; }
     
     /// <summary> Tween status. </summary>
-    TweenState State { get; }
+    new TweenState State { get; }
     
     /// <summary> Execute a tween operation. </summary>
     Tween<T> Start();
@@ -105,7 +105,7 @@ namespace FronkonGames.TinyTween
     void Reset();
     
     /// <summary> Update the Tween operation. </summary>
-    void Update();
+    new void Update();
   }
 
   /// <summary> Tween operation. If it is created manually, Update() must be called. </summary>

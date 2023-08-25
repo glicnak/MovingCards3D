@@ -139,12 +139,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       dragStartIndex = transform.GetSiblingIndex();
       dragStartScale = transform.localScale.x;
       dragStartHeight = transform.position.y;
+      if (transform.eulerAngles.y >180  && transform.parent.gameObject != PlayerManager.Instance.hand){
+        currentYRotation += -360;
+      }
       if(draggedCardParent != null){
         transform.SetParent(draggedCardParent.transform);
       }
-
-      createTweenMoves(dragOriginPosition, transform.localScale, worldPosition, height, 0, riseScale, riseDuration, risePlacementFactor, riseEaseIn, riseEaseOut, riseEaseOutHeight, true);
       
+      createTweenMoves(dragOriginPosition, transform.localScale, worldPosition, height, 0, riseScale, riseDuration, risePlacementFactor, riseEaseIn, riseEaseOut, riseEaseOutHeight, true);
+
       currentYRotation = 0;
 
     }
@@ -183,7 +186,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       }
 
       //Get the rotation of the droppable
-      droppableYValue = UnityEditor.TransformUtils.GetInspectorRotation(droppable.transform).y;
+      droppableYValue = droppable.transform.eulerAngles.y;
 
       //Do the move
       currentTiltTime = Math.Max(0, dropDuration * 0.9f);
@@ -214,12 +217,15 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   private void OnEnable()
   {
     dragOriginPosition = transform.position;
-    currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(transform).y;
+    currentYRotation = transform.eulerAngles.y;
     droppableYValue = currentYRotation;
     currentTiltTime = GetComponent<CardTilter>().restTime;
   }
 
   private void createTweenMoves(Vector3 dragOriginPosition, Vector3 dragOriginScale, Vector3 desiredPosition, float height, float desiredYRotation, float desiredScale, float duration, float placementFactor, FronkonGames.TinyTween.Ease easeIn, FronkonGames.TinyTween.Ease easeOut, FronkonGames.TinyTween.Ease easeOutHeight, bool isItDraggable){
+      if (desiredYRotation >180){
+        currentYRotation += 360;
+      }
       TweenFloat.Create()
         .Origin(dragOriginPosition.x)
         .Destination(desiredPosition.x)
@@ -253,7 +259,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
         .Duration(duration)
         .EasingIn(easeIn)
         .EasingOut(easeOut)
-        .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, tween.Value, UnityEditor.TransformUtils.GetInspectorRotation(transform).z))
+        .OnUpdate(tween => transform.rotation = Quaternion.Euler(transform.eulerAngles.x, tween.Value, transform.eulerAngles.z))
         .Owner(this)
         .Start();
       TweenFloat.Create()

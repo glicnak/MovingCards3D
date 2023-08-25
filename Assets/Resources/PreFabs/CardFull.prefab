@@ -1255,8 +1255,8 @@ MonoBehaviour:
   easeOut: 3
   easeOutHeight: 11
   moveDuration: 0.777
-  movementHeight: 0.56
-  moveMovementFactor: 0.36
+  movementHeight: 0.42
+  moveMovementFactor: 0.32
   moveEaseIn: 2
   moveEaseOut: 3
   moveEaseOut1Height: 9

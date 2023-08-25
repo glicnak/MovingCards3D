@@ -39,10 +39,10 @@ public class CardMovements : MonoBehaviour
   private float moveDuration = 0.777f; 
 
   [SerializeField, Range(0.0f, 10.0f)]
-  private float movementHeight = 0.56f; 
+  private float movementHeight = 0.42f; 
 
   [SerializeField, Range(0.0f, 1.0f)]
-  private float moveMovementFactor = 0.36f; 
+  private float moveMovementFactor = 0.32f; 
 
   [SerializeField]
   private Ease moveEaseIn = Ease.Sine;  
@@ -56,6 +56,8 @@ public class CardMovements : MonoBehaviour
   [SerializeField]
   private Ease moveEaseOut2Height = Ease.Bounce; 
 
+  private float startingYRotation;
+
     public void playPlayerCard(GameObject location){
         if (location == null || !GetComponent<CardValues>().isSelectable){
           return;
@@ -67,7 +69,10 @@ public class CardMovements : MonoBehaviour
         float randomRotation = rng.Next(-(int)GetComponent<CardDrag>().dropRotationRange*2, Math.Max(0, (int)GetComponent<CardDrag>().dropRotationRange*2-1)) * 0.5f;
         if(randomRotation == 0){
             randomRotation = GetComponent<CardDrag>().dropRotationRange;
-            }
+        }
+
+        //Get Y Rotation
+        startingYRotation = transform.eulerAngles.y;
 
         //SetParent
         if(GetComponent<CardDrag>().dropHasEmptyParent){
@@ -77,10 +82,10 @@ public class CardMovements : MonoBehaviour
         else{
           transform.SetParent(location.transform, true);
         }
-
+        
         //play card
-        GetComponent<CardDrag>().currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(location.transform).y + randomRotation;
-        createTweenPlayCard(transform.position, 0.0f, location.transform.position, location.transform.position.y, GetComponent<CardDrag>().currentYRotation, GetComponent<CardDrag>().regularScale, playDuration, movementFactor, easeIn, easeOut, easeOutHeight);
+        GetComponent<CardDrag>().currentYRotation = location.transform.eulerAngles.y + randomRotation;
+        createTweenPlayCard(transform.position, startingYRotation, location.transform.position, location.transform.position.y, GetComponent<CardDrag>().currentYRotation, GetComponent<CardDrag>().regularScale, playDuration, movementFactor, easeIn, easeOut, easeOutHeight);
     }
 
     public void playOpponentCard(GameObject location){
@@ -105,9 +110,15 @@ public class CardMovements : MonoBehaviour
           transform.SetParent(location.transform, true);
         }
 
+        //Get Y rotation
+        startingYRotation = 180;
+        if(location.transform.parent.GetSiblingIndex() > 10){
+          startingYRotation = -180;
+        }
+
         //play card
-        GetComponent<CardDrag>().currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(location.transform).y + randomRotation;
-        createTweenPlayCard(transform.position, 180, location.transform.position, location.transform.position.y, GetComponent<CardDrag>().currentYRotation, GetComponent<CardDrag>().regularScale, oppPlayDuration, oppMovementFactor, easeIn, easeOut, easeOutHeight);
+        GetComponent<CardDrag>().currentYRotation = location.transform.eulerAngles.y + randomRotation;
+        createTweenPlayCard(transform.position, startingYRotation, location.transform.position, location.transform.position.y, GetComponent<CardDrag>().currentYRotation, GetComponent<CardDrag>().regularScale, oppPlayDuration, oppMovementFactor, easeIn, easeOut, easeOutHeight);
     }
 
     public void moveCard(GameObject location){
@@ -133,11 +144,14 @@ public class CardMovements : MonoBehaviour
         }
 
         //play card
-        GetComponent<CardDrag>().currentYRotation = UnityEditor.TransformUtils.GetInspectorRotation(location.transform).y + randomRotation;
+        GetComponent<CardDrag>().currentYRotation = location.transform.eulerAngles.y + randomRotation;
         createTweenMoveCardUp(transform.position, location.transform.position, GetComponent<CardDrag>().currentYRotation, moveDuration, moveMovementFactor);
     }
 
-    private void createTweenPlayCard(Vector3 dragOriginPosition, float startingZRotation, Vector3 desiredPosition, float height, float desiredYRotation, float desiredScale, float duration, float placementFactor, FronkonGames.TinyTween.Ease easeIn, FronkonGames.TinyTween.Ease easeOut, FronkonGames.TinyTween.Ease easeOutHeight){
+    private void createTweenPlayCard(Vector3 dragOriginPosition, float startingYRotation, Vector3 desiredPosition, float height, float desiredYRotation, float desiredScale, float duration, float placementFactor, FronkonGames.TinyTween.Ease easeIn, FronkonGames.TinyTween.Ease easeOut, FronkonGames.TinyTween.Ease easeOutHeight){
+      if (desiredYRotation >180){
+        startingYRotation += 360;
+      }
       TweenFloat.Create()
         .Origin(dragOriginPosition.x)
         .Destination(desiredPosition.x)
@@ -166,21 +180,12 @@ public class CardMovements : MonoBehaviour
         .Owner(this)
         .Start();
       TweenFloat.Create()
-        .Origin(UnityEditor.TransformUtils.GetInspectorRotation(transform).y)
+        .Origin(startingYRotation)
         .Destination(desiredYRotation)
         .Duration(duration)
         .EasingIn(easeIn)
         .EasingOut(easeOut)
-        .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, tween.Value, UnityEditor.TransformUtils.GetInspectorRotation(transform).z))
-        .Owner(this)
-        .Start();
-      TweenFloat.Create()
-        .Origin(startingZRotation)
-        .Destination(0)
-        .Duration(duration * placementFactor)
-        .EasingIn(easeIn)
-        .EasingOut(easeOut)
-        .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, UnityEditor.TransformUtils.GetInspectorRotation(transform).y, tween.Value))
+        .OnUpdate(tween => transform.rotation = Quaternion.Euler(transform.eulerAngles.x, tween.Value, transform.eulerAngles.z))
         .Owner(this)
         .Start();
       TweenFloat.Create()
@@ -205,6 +210,9 @@ public class CardMovements : MonoBehaviour
     }
 
       private void createTweenMoveCardUp(Vector3 dragOriginPosition, Vector3 desiredPosition, float desiredYRotation, float duration, float placementFactor){
+        if (desiredYRotation >180){
+          startingYRotation += 360;
+        }
         TweenFloat.Create()
           .Origin(dragOriginPosition.x)
           .Destination(dragOriginPosition.x + (desiredPosition.x-dragOriginPosition.x)/2)
@@ -233,18 +241,21 @@ public class CardMovements : MonoBehaviour
           .Owner(this)
           .Start();
         TweenFloat.Create()
-          .Origin(UnityEditor.TransformUtils.GetInspectorRotation(transform).y)
-          .Destination(UnityEditor.TransformUtils.GetInspectorRotation(transform).y + (desiredYRotation-UnityEditor.TransformUtils.GetInspectorRotation(transform).y)/2)
+          .Origin(transform.eulerAngles.y)
+          .Destination(transform.eulerAngles.y + (desiredYRotation-transform.eulerAngles.y)/2)
           .Duration(duration * placementFactor)
           .EasingIn(moveEaseIn)
           .EasingOut(moveEaseIn)
-          .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, tween.Value, UnityEditor.TransformUtils.GetInspectorRotation(transform).z))
+          .OnUpdate(tween => transform.rotation = Quaternion.Euler(transform.eulerAngles.x, tween.Value, transform.eulerAngles.z))
           .OnEnd(_ => createTweenMoveCardDown(transform.position, desiredPosition, desiredYRotation, duration, placementFactor))
           .Owner(this)
           .Start();
     }
 
       private void createTweenMoveCardDown(Vector3 dragOriginPosition, Vector3 desiredPosition, float desiredYRotation, float duration, float placementFactor){
+        if (desiredYRotation >180){
+          startingYRotation += 360;
+        }
         TweenFloat.Create()
           .Origin(dragOriginPosition.x)
           .Destination(desiredPosition.x)
@@ -273,18 +284,18 @@ public class CardMovements : MonoBehaviour
           .Owner(this)
           .Start();
         TweenFloat.Create()
-          .Origin(UnityEditor.TransformUtils.GetInspectorRotation(transform).y)
+          .Origin(transform.eulerAngles.y)
           .Destination(desiredYRotation)
           .Duration(duration * (1-placementFactor))
           .EasingIn(moveEaseOut)
           .EasingOut(moveEaseOut)
-          .OnUpdate(tween => transform.rotation = Quaternion.Euler(UnityEditor.TransformUtils.GetInspectorRotation(transform).x, tween.Value, UnityEditor.TransformUtils.GetInspectorRotation(transform).z))
+          .OnUpdate(tween => transform.rotation = Quaternion.Euler(transform.eulerAngles.x, tween.Value, transform.eulerAngles.z))
           .OnEnd(_ => GetComponent<CardValues>().isSelectable = true)
           .Owner(this)
           .Start();
     }
 
-    // Update is called once per frame
+
     void Update(){
         if(Input.GetKeyDown("a") && gameObject == UnityEditor.Selection.activeGameObject){
             playPlayerCard(GameObject.Find("Cube BL (3)"));

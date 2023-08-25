@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ManageHand : MonoBehaviour
+public class HandManager : MonoBehaviour
 {
-
+    public static HandManager Instance;
     public int handSize;
 
     [Header("Radial Layout Info")]
@@ -16,13 +16,21 @@ public class ManageHand : MonoBehaviour
     [SerializeField]
     public float radius = 18;
 
+    void Awake(){
+        Instance = this;
+    }
+
     void Start(){
         //Set Radius
         GetComponent<LayoutGroup3D>().Radius = radius;
     }
 
-    void Update()
-    {
+    public void reManageHand(){
+        enabled = false;
+        enabled = true;
+    }
+
+    void Update(){
         //Count the number of cards in hand
         handSize = transform.childCount;
 
@@ -52,7 +60,7 @@ public class ManageHand : MonoBehaviour
 
         //Set the heights of the cards
         for (int i=0; i<transform.childCount; i++){
-            transform.GetChild(i).position = new Vector3(transform.GetChild(i).position.x, transform.position.y-(float)(handSize-i-1)/(10*handSize), transform.GetChild(i).position.z);
+            transform.GetChild(i).position = new Vector3(transform.GetChild(i).position.x, transform.position.y-(float)(handSize-i-1)/(100*handSize), transform.GetChild(i).position.z);
         }
 
         //Set the scale of the cards

@@ -88,9 +88,9 @@ public sealed class CardTilter : MonoBehaviour
 
     // Update the card rotation.
     transform.rotation = Quaternion.Euler(originalAngles.x + pitchAngle,
-                                          GetComponent<CardDrag>().currentYRotation,
+                                          transform.eulerAngles.y,
                                           originalAngles.z - rollAngle);
-
+    
     oldPosition = currentPosition;
     
   }

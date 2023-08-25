@@ -73,6 +73,10 @@ public class CardMovements : MonoBehaviour
 
         //Get Y Rotation
         startingYRotation = transform.eulerAngles.y;
+        if(transform.parent != null && transform.parent.gameObject == PlayerManager.Instance.hand && startingYRotation > 180){
+          startingYRotation += -360;
+        }
+        
 
         //SetParent
         if(GetComponent<CardDrag>().dropHasEmptyParent){

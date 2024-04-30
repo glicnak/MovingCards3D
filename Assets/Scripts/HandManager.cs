@@ -14,7 +14,7 @@ public class HandManager : MonoBehaviour
     public int maxHandSize = 7;
 
     [SerializeField]
-    public float radius = 18;
+    public float radius = 4.2f;
 
     void Awake(){
         Instance = this;
@@ -37,23 +37,30 @@ public class HandManager : MonoBehaviour
         //Fix the layout based on the number of cards
         if(handSize < 2){
             GetComponent<LayoutGroup3D>().MaxArcAngle = 0;
-            GetComponent<LayoutGroup3D>().StartAngleOffset = -90;
+            GetComponent<LayoutGroup3D>().StartAngleOffset = -113;
+        }
+        else if(handSize == 2){
+            GetComponent<LayoutGroup3D>().MaxArcAngle = 30;
+            GetComponent<LayoutGroup3D>().StartAngleOffset = -130;
+        }
+        else if(handSize == 3){
+            GetComponent<LayoutGroup3D>().MaxArcAngle = 54;
+            GetComponent<LayoutGroup3D>().StartAngleOffset = -142;
         }
         else{
-            GetComponent<LayoutGroup3D>().MaxArcAngle = -1f + ((float)maxHandSize/2)*handSize;
-            GetComponent<LayoutGroup3D>().StartAngleOffset = -89.5f - ((float)maxHandSize/4)*handSize;
+            GetComponent<LayoutGroup3D>().MaxArcAngle = 90f - 6*(System.Math.Max(maxHandSize,handSize)-handSize);
+            GetComponent<LayoutGroup3D>().StartAngleOffset = -155f + 3*(System.Math.Max(maxHandSize,handSize)-handSize);
         }
 
         //Set the angles of the cards
-        if(handSize%2 == 0){   //if even number of cards
+        if(handSize < 2){
             for (int i=0; i<transform.childCount; i++){
-                float cardRotation = (2*i + 1 - handSize)*GetComponent<LayoutGroup3D>().MaxArcAngle/(2*handSize + 1); 
-                transform.GetChild(i).rotation = Quaternion.Euler(transform.GetChild(i).rotation.x, cardRotation, transform.GetChild(i).rotation.z);
+                transform.GetChild(i).rotation = Quaternion.Euler(transform.GetChild(i).rotation.x, -6, transform.GetChild(i).rotation.z); 
             }
         }
-        else {   //if odd number of cards
+        else{
             for (int i=0; i<transform.childCount; i++){
-                float cardRotation = (i-(handSize-1)/2)*GetComponent<LayoutGroup3D>().MaxArcAngle/handSize;
+                float cardRotation = -35 + 155 + GetComponent<LayoutGroup3D>().StartAngleOffset + i*(48 - (90-GetComponent<LayoutGroup3D>().MaxArcAngle)/2)/handSize;
                 transform.GetChild(i).rotation = Quaternion.Euler(transform.GetChild(i).rotation.x, cardRotation, transform.GetChild(i).rotation.z); 
             }
         }

@@ -112,9 +112,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
   [SerializeField, Range(0.0f, 45.0f)]
   public float dropRotationRange = 2.0f;  
 
-  [SerializeField]
-  public bool dropHasEmptyParent = true;  
-
   private Vector3 dragOriginPosition; 
   private float droppableYValue; 
   private Transform dragStartParent;
@@ -139,9 +136,6 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       dragStartIndex = transform.GetSiblingIndex();
       dragStartScale = transform.localScale.x;
       dragStartHeight = transform.position.y;
-      if (transform.eulerAngles.y >180  && transform.parent.gameObject != PlayerManager.Instance.hand){
-        currentYRotation += -360;
-      }
       if(draggedCardParent != null){
         transform.SetParent(draggedCardParent.transform);
       }
@@ -159,6 +153,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       GetComponent<CardValues>().isSelectable = false;
       deltaPosition.y = 0.0f;
       transform.position += deltaPosition;
+      Debug.Log(droppable);
     }
   }
 
@@ -175,22 +170,16 @@ public sealed class CardDrag : MonoBehaviour, IDrag
     }
 
     if (droppable != null && droppable.transform.GetComponent<IDrop>() is { IsDroppable: true } && droppable.transform.GetComponent<IDrop>().AcceptDrop(this) == true){
-      
+     
       //Set Droppable's parent as new parent (the object becoming the parent needs a scale of 1,1,1)
-      if(dropHasEmptyParent){
-        transform.SetParent(droppable.transform.parent, true);
-        transform.SetSiblingIndex(droppable.transform.parent.childCount -2);
-      }
-      else{
-        transform.SetParent(droppable.transform, true);
-      }
+      transform.SetParent(droppable.transform.parent.GetChild(0), true);
 
       //Get the rotation of the droppable
       droppableYValue = droppable.transform.eulerAngles.y;
 
       //Do the move
       currentTiltTime = Math.Max(0, dropDuration * 0.9f);
-      createTweenMoves(transform.position, transform.localScale, droppable.transform.position, height, droppableYValue + randomRotation, regularScale, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
+      createTweenMoves(transform.position, transform.localScale, droppable.transform.parent.GetChild(0).position, height, droppableYValue + randomRotation, regularScale, dropDuration, dropPlacementFactor, dropEaseIn, dropEaseOut, dropEaseOutHeight, true);
       
     }
     
@@ -203,8 +192,7 @@ public sealed class CardDrag : MonoBehaviour, IDrag
       //Set Parent and move
       if(dragStartParent!= null){
         transform.SetParent(dragStartParent);
-        transform.SetSiblingIndex(dragStartIndex);
-        
+        transform.SetSiblingIndex(dragStartIndex);        
       }
 
       createTweenMoves(transform.position, transform.localScale, dragOriginPosition, dragStartHeight, droppableYValue + randomRotation, dragStartScale, invalidDropDuration, invalidDropPlacementFactor, invalidDropEaseIn, invalidDropEaseOut, invalidDropEaseOutHeight, true);

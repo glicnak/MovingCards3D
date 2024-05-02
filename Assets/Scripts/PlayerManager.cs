@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
-    public GameObject cardTemplate;
+    public GameObject villainTemplate;
+    public GameObject markTemplate;
 
     public GameObject hand;
-    public GameObject locations;
+    public GameObject markZone;
 
     public static PlayerManager Instance;
 
@@ -17,13 +18,16 @@ public class PlayerManager : MonoBehaviour
 
     void Start(){
         hand = GameObject.Find("Hand");
-        locations = GameObject.Find("Locations");
+        markZone = GameObject.Find("MarkZone");
     }
 
     void Update(){
-        if(Input.GetKeyDown("space")){
-            GameObject card = Instantiate(cardTemplate, new Vector3(0,0,0), Quaternion.identity, hand.transform);
+        if(Input.GetKeyDown("return")){
+            GameObject card = Instantiate(villainTemplate, new Vector3(0,0,0), Quaternion.identity, hand.transform);
             HandManager.Instance.reManageHand();
+        }
+        if(Input.GetKeyDown("space")){
+            GameObject card = Instantiate(markTemplate, new Vector3(0,0,0), Quaternion.identity, markZone.transform);
         }
     }
 }

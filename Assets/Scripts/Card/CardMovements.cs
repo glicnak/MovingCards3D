@@ -79,13 +79,7 @@ public class CardMovements : MonoBehaviour
         
 
         //SetParent
-        if(GetComponent<CardDrag>().dropHasEmptyParent){
-          transform.SetParent(location.transform.parent, true);
-          transform.SetSiblingIndex(location.transform.parent.childCount -2);
-        }
-        else{
-          transform.SetParent(location.transform, true);
-        }
+        transform.SetParent(location.transform.parent.GetChild(0), true);
         
         //play card
         GetComponent<CardDrag>().currentYRotation = location.transform.eulerAngles.y + randomRotation;
@@ -106,13 +100,7 @@ public class CardMovements : MonoBehaviour
             }
 
         //SetParent
-        if(GetComponent<CardDrag>().dropHasEmptyParent){
-          transform.SetParent(location.transform.parent, true);
-          transform.SetSiblingIndex(location.transform.parent.childCount -2);
-        }
-        else{
-          transform.SetParent(location.transform, true);
-        }
+        transform.SetParent(location.transform.parent.GetChild(0), true);
 
         //Get Y rotation
         startingYRotation = 180;
@@ -139,13 +127,7 @@ public class CardMovements : MonoBehaviour
             }
 
         //SetParent
-        if(GetComponent<CardDrag>().dropHasEmptyParent){
-          transform.SetParent(location.transform.parent, true);
-          transform.SetSiblingIndex(location.transform.parent.childCount -2);
-        }
-        else{
-          transform.SetParent(location.transform, true);
-        }
+        transform.SetParent(location.transform.parent.GetChild(0), true);
 
         //play card
         GetComponent<CardDrag>().currentYRotation = location.transform.eulerAngles.y + randomRotation;

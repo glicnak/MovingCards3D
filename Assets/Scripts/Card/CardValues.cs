@@ -15,4 +15,5 @@ public class CardValues : MonoBehaviour
         roundStartParent = transform.parent;
         GetComponent<CardDrag>().draggedCardParent = GameObject.Find("Selected Card Area");
     }
+
 }
